@@ -1,0 +1,95 @@
+from langchain_core.prompts import ChatPromptTemplate
+from common import llm
+
+HTML_PROMPT = ChatPromptTemplate.from_template("""
+以下のJSON構造をHTML例のようにHTMLへ変換してください。
+HTML例のうち、<div class="amatsuchi">〜</div>のみを編集し、他は一切変えないでください。
+amatsuchiというCSSライブラリを使っています、「amatsuchi仕様」も参考にして下さい。
+
+HTML例：
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja-JP">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="
+          initial-scale=1.0,
+          minimum-scale=1.0,
+          maximum-scale=2.0,
+          user-scalable=yes"
+    />
+    <title>タイトル(編集後記) - イシュー名(偏向XX月号)</title>
+    <link rel="stylesheet" href="amatsuchi_v1-beta_202401/amatsuchi.css" />
+    <script src="amatsuchi_v1-beta_202401/main.js"></script>
+  </head>
+  <!-- Google tag (gtag.js) -->
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=G-KT68C9VVMD"
+  ></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {{
+      dataLayer.push(arguments);
+    }}
+    gtag("js", new Date());
+
+    gtag("config", "G-KT68C9VVMD");
+  </script>
+
+  <body
+    lang="ja-JP"
+    style="width: 100%; height: 100%; overflow-x: scroll; overflow-y: hidden"
+  >
+    <div class="amatsuchi">
+      <div class="midashi-box">
+        <h1 class="midashi">タイトル(編集後記)</h1>
+        <div class="hissha">筆者名(白石ひのえ)</div>
+      </div>
+      <p>月刊号14冊目。<ruby>残<rt>のこり</rt></ruby><ruby>滓<rt>かす</rt></ruby>。<br>
+今年は4月に「<span class="shatai">偏向</span>」を再始動させ、11月には紙の本『「偏向」<ruby>白堊紀<rt>はくあき</rt></ruby>』をつくって文学フリマ東京37に出店した。その間に冊子含め11冊出したことになる。<br>
+来年もさらなる<span class="yoko">偏向</span>をきたしていきたい。<br>
+来年もよろしくお願い致します。よいお年を。<br>
+　　　　  　令和五年十二月三十日　責任編集  白石火乃絵<br>
+<br>
+<div style="margin-top:1rem"><br>
+【連絡】<br>
+2月号から月刊冊子にて、<span class='gothic'>編集者</span>白石火乃絵受け持ちで自由投稿枠を設けようと思います。〆切は1/20とします。<br>
+原稿料はありませんが。<br>
+<span class="shatai">ジャンル・テーマ・長短の指定はありません。一回ものでも連載でも結構です。</span><br>
+投稿ないし投稿相談は以下のメールアドレスにお願いします。henkou65@gmail.com<br>
+</div>
+</p>
+    </div>
+    <div id="ama-float" class="ama-float">
+      <a href="./index.html">目次へ</a>
+    </div>
+  </body>
+</html>
+                                               
+amatsuchi仕様：
+| クラス名 | 用途 | 適用されるスタイル |
+|---------|------|------------------|
+| `.midashi-box` | 見出しを囲む要素 | `padding: 0 0 20px 20px;` |
+| `.midashi` | 見出しのスタイル設定（`.midashi-box`の子要素） | — |
+| `.hissha` | 署名を右寄せ（`.midashi-box`の子要素） | — |
+| `.yoko-bo` | 横書きに最適化された要素 | `writing-mode: horizontal-tb;` |
+| `.rinku` | 下線を引く要素 | `text-decoration-skip-ink: none;` `text-decoration-line: underline;` |
+| `.migi-bo` | 右に線を引く要素 | `text-decoration-line: overline;` `text-decoration-skip-ink: none;` `text-decoration-thickness: from-font;` |
+| `.hidari-bo` | 左に線を引く要素 | `text-decoration-skip-ink: none;` `text-decoration-line: underline;` `text-decoration-thickness: from-font;` |
+| `.migi-nami` | 右に波線を引く要素 | `text-decoration-line: overline;` `text-decoration-skip-ink: none;` `text-decoration-thickness: from-font;` `text-decoration-style: wavy;` |
+| `.hidari-nami` | 左に波線を引く要素 | `text-decoration-skip-ink: none;` `text-decoration-line: underline;` `text-decoration-thickness: from-font;` `text-decoration-style: wavy;` |
+| `.dash` | 文字と文字の間にダッシュを入れる要素 | `letter-spacing: -0.2em;` `margin: 2px 0 4px 0;` |
+| `.jisage` | 段落の先頭に字下げを設定 | `text-indent: 1rem;` |
+
+JSON:
+{json}
+""")
+
+
+def json_to_html(structured_json):
+    print("=== HTML変換中 ===")
+    content = llm.invoke(HTML_PROMPT.format(json=structured_json)).content
+    print("=== HTML変換完了 ===")
+    return content
